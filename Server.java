@@ -4,6 +4,38 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
+
+class User {
+    Account[] accounts;
+}
+
+class Account implements ATM_Account{
+    int number;
+    float current_balance;
+    Transaction[] transactions;
+
+    public Account(int numbe, float current_balanc){
+        number = numbe;
+        current_balance = current_balanc;
+    }
+
+    @Override
+    public void createAccount(){
+
+    }
+}
+
+class Transaction {
+    int id;
+    float amount;
+    LocalDateTime date;
+    String description;
+
+    public Transaction(int id, float amount, LocalDateTime date, String description){
+
+    }
+}
 
 class ImplInterface implements Interface{
     	/*
