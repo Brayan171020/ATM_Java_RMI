@@ -34,7 +34,7 @@ public class Client {
 
             	System.out.println("Ingresa el número 2: ");
             	try{
-                	numero2 = Float.parseFloat(sc.nextLine());
+                	numero2 = Float.parseFloat(sc.nextLine());                    
             	}catch(NumberFormatException e){
             		numero2 = 0;
             	}
