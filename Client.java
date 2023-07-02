@@ -12,7 +12,7 @@ public class Client {
         Registry registry = LocateRegistry.getRegistry( PUERTO);
         ATM_Bank interfaz = (ATM_Bank) registry.lookup("Bank"); //Buscar en el registro...
         Scanner sc = new Scanner(System.in);
-        int eleccion;
+        int eleccion,eleccion2;
 		String name = "",username= "", password= "";
         //float numero1, numero2, resultado = 0;
 		int document_id;
@@ -21,46 +21,21 @@ public class Client {
         do {
 			System.out.println("\n\nBienvenido ATM");
             System.out.println(menu);
-
-            try {
-                eleccion = Integer.parseInt(sc.nextLine());
-            } catch (NumberFormatException e) {
-                eleccion = -1;
-            }
-
+			eleccion = electionOp(sc);
             if(eleccion != -1){
-
-            	/*System.out.println("Ingresa el número 1: ");
-            	try{
-                	numero1 = Float.parseFloat(sc.nextLine());
-            	}catch(NumberFormatException e){
-            		numero1 = 0;
-            	}
-
-            	System.out.println("Ingresa el número 2: ");
-            	try{
-                	numero2 = Float.parseFloat(sc.nextLine());                    
-            	}catch(NumberFormatException e){
-            		numero2 = 0;
-            	}*/
                 switch (eleccion) {
 	                case 0:
-						System.out.println("Ingrese su numero de Documento de identidad: ");
-						try{
-    						document_id = Integer.parseInt(sc.nextLine());
-    					}catch(NumberFormatException e){
-    						document_id = 0;
-    					}						
-						if (interfaz.userExist(document_id)){
-							
-							
+						document_id=inDomunetId(sc);						
+						if (interfaz.userExist(document_id)){							
 							if (interfaz.isMaxAccounts(document_id)){
 								System.out.println("\n\nUsted ya ha creado el maximo de cuentas disponibles (3)\n\n");
 								break;
 							}else{
 								if(!authUser(interfaz,sc,document_id)){
+									System.out.println("Usuario o contrase;a invalidos\n");
 									break;
 								}else{
+									System.out.println("Ahora ingrese los datos para crear su Cuenta:\n");
 									registryAccount(interfaz,sc,document_id);
 								}
 
@@ -68,7 +43,7 @@ public class Client {
 
 						}else{							
 							registryUser(interfaz,name,username,password,sc,document_id);
-							System.out.println("Ahora vamos a  crear su Cuenta:\n");
+							System.out.println("Ahora ingrese los datos para crear su Cuenta:\n");
 							registryAccount(interfaz,sc,document_id);
 							document_id=0;
 							name = "";username= ""; password= "";
@@ -78,6 +53,32 @@ public class Client {
 	                    //resultado = interfaz.sumar(numero1, numero2);
 	                    break;
 	                case 1:
+						document_id=inDomunetId(sc);
+						if (interfaz.userExist(document_id)){
+							if(!authUser(interfaz,sc,document_id)){
+								System.out.println("Usuario o contrase;a invalidos\n");
+								break;
+							}else{
+
+								String menuTrasanccion = "\n------------------\n\n[-1] => Salir\n[0] => Consulta de Cuenta\n[1] => Deposito de cuenta\n\nElige: ";
+								System.out.println(menuTrasanccion);
+								eleccion2 = electionOp(sc);
+								if(eleccion2 != -1){
+                					switch (eleccion2) {
+										case 0:
+											System.out.println("Si llegaste hasta aqui todo bien\n");
+											break;
+										case 1:
+											break;
+
+									}
+									//break;
+								}
+							}
+						}else{
+							System.out.println("No existe ese Usuario el sistema:\n");
+						}
+						
 	                    //resultado = interfaz.restar(numero1, numero2);
 						//System.out.println(interfaz.getName());
 	                    break;
@@ -96,6 +97,30 @@ public class Client {
         } while (eleccion != -1);
         sc.close();
     }
+/*public static selectAccount(){
+
+}*/
+
+public static int electionOp(Scanner sc){
+	int eleccion;
+	try {
+    	eleccion = Integer.parseInt(sc.nextLine());
+    } catch (NumberFormatException e) {
+        eleccion = -1;
+    }
+	return eleccion;
+}
+
+public static int inDomunetId(Scanner sc){
+	int document_id;
+	System.out.println("Ingrese su numero de Documento de identidad: ");
+	try{
+    	document_id = Integer.parseInt(sc.nextLine());
+    }catch(NumberFormatException e){
+    	document_id = 0;
+    }
+	return document_id;
+}
 
 public static boolean authUser(ATM_Bank interfaz,Scanner sc,int document_id)throws RemoteException{
 	String username, password;
