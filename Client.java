@@ -2,6 +2,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Random;
 import java.util.Scanner;
 public class Client {
 	//private static final String IP = "192.168.1.15"; // Puedes cambiar a localhost
@@ -10,16 +11,15 @@ public class Client {
     public static void main(String[] args) throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry( PUERTO);
         ATM_Bank interfaz = (ATM_Bank) registry.lookup("Bank"); //Buscar en el registro...
-		ATM_User interfaz2 = (ATM_User) registry.lookup("User");
         Scanner sc = new Scanner(System.in);
         int eleccion;
 		String name = "",username= "", password= "";
         //float numero1, numero2, resultado = 0;
 		int document_id;
 		//ATM_User user;
-        String menu = "\n\n------------------\n\n[-1] => Salir\n[0] => Apertura de Cuenta\n[1] => Realizar Transaccion\n[2] => Multiplicar\n[3] => Dividir\nElige: ";
+        String menu = "\n------------------\n\n[-1] => Salir\n[0] => Apertura de Cuenta\n[1] => Realizar Transaccion\n\nElige: ";
         do {
-			System.out.println("Bienvenido ATM");
+			System.out.println("\n\nBienvenido ATM");
             System.out.println(menu);
 
             try {
@@ -52,13 +52,26 @@ public class Client {
     						document_id = 0;
     					}						
 						if (interfaz.userExist(document_id)){
-							System.out.println("aun no pasa nada jajajajajaj");
+							
+							
+							if (interfaz.isMaxAccounts(document_id)){
+								System.out.println("\n\nUsted ya ha creado el maximo de cuentas disponibles (3)\n\n");
+								break;
+							}else{
+								if(!authUser(interfaz,sc,document_id)){
+									break;
+								}else{
+									registryAccount(interfaz,sc,document_id);
+								}
+
+							}
 
 						}else{							
 							registryUser(interfaz,name,username,password,sc,document_id);
-							
-							System.out.println(interfaz.getUser(document_id).getName());
-							
+							System.out.println("Ahora vamos a  crear su Cuenta:\n");
+							registryAccount(interfaz,sc,document_id);
+							document_id=0;
+							name = "";username= ""; password= "";
 							//System.out.println(user.getName());
 						}
 						
@@ -84,6 +97,38 @@ public class Client {
         sc.close();
     }
 
+public static boolean authUser(ATM_Bank interfaz,Scanner sc,int document_id)throws RemoteException{
+	String username, password;
+	boolean result;
+	System.out.println("\n\nIngrese sus datos porfavor:");
+	System.out.println("Ingrese su username: ");
+	username = sc.nextLine();
+	System.out.println("Ingrese su password: ");
+	password = sc.nextLine();
+	result=interfaz.authenticateUser(document_id, username, password);
+	return result;
+}
+
+public static void registryAccount(ATM_Bank interfaz,Scanner sc,int document_id)
+throws RemoteException{
+	Float amount;
+	System.out.println("\n\nIngrese el  monto inicial de  la cuenta(deposito inicial):");
+	amount = Float.parseFloat(sc.nextLine());
+	Random random = new Random();
+    StringBuilder builder = new StringBuilder();
+       
+    // Agregar los primeros 4 dígitos
+    builder.append(random.nextInt(9000) + 1000);
+        
+    // Agregar los siguientes 4 dígitos
+    builder.append(random.nextInt(9000) + 1000);
+
+    String numero = builder.toString();
+    int numeroDeCuenta = Integer.parseInt(numero) ;
+	interfaz.createAccount(document_id,numeroDeCuenta, amount);
+	System.out.println("\nSu numero de cuenta es: "+numeroDeCuenta+"\n\n");
+
+}
 
 public static void registryUser(ATM_Bank interfaz,String name, String username, 
 String password,Scanner sc, int document_id) 

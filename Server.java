@@ -33,7 +33,25 @@ class Bank  implements ATM_Bank {
         User user = new User();
         user.createUser(document_id, name, username, password);
         //this.users = user;
-        this.users.add(user);
+        this.users.add(user);        
+    }
+
+    public boolean authenticateUser(int document_id,String username, String password)throws RemoteException{
+        if (this.getUser(document_id).getUserName().equals(username)&& 
+        this.getUser(document_id).getPassword().equals(password)){
+            return true;
+
+        }
+        return false;
+    }
+
+    public boolean isMaxAccounts(int document_id)throws RemoteException{
+        return this.getUser(document_id).isMaxAccounts();
+    }
+
+
+    public void createAccount(int document_id, int numeroDeCuenta,float amount)throws RemoteException{
+        this.getUser(document_id).addAccount(numeroDeCuenta, amount);
     }
 }
 
@@ -59,14 +77,21 @@ class User implements ATM_User, Serializable {
 
     public boolean isMaxAccounts()throws RemoteException{
         if (this.accounts.size()==3){
-            return false;
-        }else{
             return true;
+        }else{
+            return false;
         }
     }
 
     public String getName() {
         return this.name;
+    }
+
+    public String getUserName() {
+        return this.username;
+    }
+    public String getPassword() {
+        return this.password;
     }
 
     public int getDocument_id(){
@@ -133,11 +158,9 @@ public class Server {
 	private static final int PUERTO = 1100; //Si cambias aquí el puerto, recuerda cambiarlo en el cliente
     public static void main(String[] args) throws RemoteException, AlreadyBoundException {
         Remote remote = UnicastRemoteObject.exportObject(new Bank(),0);
-        Remote remote2 = UnicastRemoteObject.exportObject(new User(),0);
         Registry registry = LocateRegistry.createRegistry(PUERTO);
        	System.out.println("Servidor escuchando en el puerto " + String.valueOf(PUERTO));
         registry.bind("Bank", remote); // Registrar calculadora
-        registry.bind("User", remote2);
     }
 }
 
