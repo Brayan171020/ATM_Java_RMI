@@ -66,9 +66,10 @@ public class Client {
 								if(eleccion2 != -1){
                 					switch (eleccion2) {
 										case 0:
-											System.out.println("Si llegaste hasta aqui todo bien\n");
+											System.out.println("No esta implementado perdon profe\n");
 											break;
 										case 1:
+											System.out.println("No esta implementado perdon profe\n");
 											break;
 
 									}
@@ -78,28 +79,13 @@ public class Client {
 						}else{
 							System.out.println("No existe ese Usuario el sistema:\n");
 						}
-						
-	                    //resultado = interfaz.restar(numero1, numero2);
-						//System.out.println(interfaz.getName());
-	                    break;
-	                case 2:
-	                    //resultado = interfaz.multiplicar(numero1, numero2);
-	                    break;
-	                case 3:
-	                    //resultado = interfaz.dividir(numero1, numero2);
-	                    break;
 	            }
-
-                //System.out.println("Resultado => " + String.valueOf(resultado));
                 System.out.println("Presiona ENTER para continuar");
                 sc.nextLine();
             }
         } while (eleccion != -1);
         sc.close();
     }
-/*public static selectAccount(){
-
-}*/
 
 public static int electionOp(Scanner sc){
 	int eleccion;

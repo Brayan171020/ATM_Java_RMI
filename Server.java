@@ -137,6 +137,3 @@ public class Server {
         registry.bind("Bank", remote); // Registrar calculadora
     }
 }
-
-
-
