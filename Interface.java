@@ -13,6 +13,19 @@ public interface Interface extends Remote {
 }
 
 
+interface ATM_Bank extends Remote{
+    boolean userExist (int document)throws RemoteException;
+    ATM_User getUser(int document)throws RemoteException;
+    void addUser(int document_id, String name, String username, String password)throws RemoteException;   
+}
+
+interface ATM_User extends Remote{
+    void createUser (int document_id, String name, String username, String password)throws RemoteException;
+    String getName() throws RemoteException;
+    int getDocument_id() throws RemoteException;
+    
+}
+
 interface ATM_Account extends Remote{
     void createAccount() throws RemoteException;
     //void consultAccount() throws RemoteException;
