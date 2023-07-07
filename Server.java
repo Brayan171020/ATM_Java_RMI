@@ -57,6 +57,36 @@ class Bank  implements ATM_Bank {
     public  ArrayList<ATM_Account> getAccount(int document_id) throws RemoteException{
         return this.getUser(document_id).getAccounts();
     }
+
+    public void addTransaction(int document_id,int account, float amount,LocalDateTime date, String description)
+    throws RemoteException{
+        ATM_User user = getUser(document_id);
+        user.getAccounts().get(account).addBalance(amount);
+        user.getAccounts().get(account).addTransaction(amount, date, description);
+    }
+    public void addDeposit(int to,int from,int account, int account2,float amount,LocalDateTime date, 
+    String description)throws RemoteException{
+        ATM_User user = getUser(to);
+        ATM_User user2 = getUser(from);
+        user.getAccounts().get(account).addBalance(amount);
+        user.getAccounts().get(account).addTransaction(amount, date, description);
+        user2.getAccounts().get(account2).restBalance(amount);
+        user2.getAccounts().get(account2).addTransaction(-amount, date, description);
+    }
+
+    public String confirmUser(int document_id, int number)throws RemoteException{
+        ATM_User user = getUser(document_id);
+        String name = null;
+        if (user!=null && user.getAccount(number)!=null){
+            name=user.getName();
+        }
+        return name;
+    }
+
+    public float getBalance(int document_id,int account) throws RemoteException{
+        ATM_User user = getUser(document_id);
+        return user.getAccounts().get(account).getBalance();
+    }
 }
 
 class User implements ATM_User, Serializable {
@@ -119,6 +149,7 @@ class Account implements ATM_Account, Serializable{
     int number;
     float current_balance;
     ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+    public int ultimoIdGenerado = 0;
 
     public Account(int numbe, float current_balanc){
         number = numbe;
@@ -136,8 +167,17 @@ class Account implements ATM_Account, Serializable{
         return this.current_balance;
     }
 
-    public void addTransaction(int id, float amount, LocalDateTime date, String description){
-        Transaction tran = new Transaction(id,amount,date,description);
+    public void addBalance(float  balance){
+        this.current_balance=this.current_balance + balance;
+    }
+
+    public void restBalance(float  balance){
+        this.current_balance=this.current_balance - balance;
+    }
+
+    public void addTransaction( float amount, LocalDateTime date, String description){
+        this.ultimoIdGenerado = ultimoIdGenerado +1;
+        Transaction tran = new Transaction(ultimoIdGenerado,amount,date,description);
         this.transactions.add(tran);
 
     }
@@ -156,7 +196,7 @@ class Account implements ATM_Account, Serializable{
 }
 
 class Transaction implements ATM_Transaction,Serializable{
-    int id;
+    int id = 0;
     float amount;
     LocalDateTime date;
     String description;

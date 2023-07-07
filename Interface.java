@@ -21,6 +21,12 @@ interface ATM_Bank extends Remote{
     void createAccount(int document_id, int numeroDeCuenta,float amount)throws RemoteException; 
     boolean authenticateUser(int document_id,String username, String password)throws RemoteException;
     boolean isMaxAccounts(int document_id)throws RemoteException;
+    void addTransaction(int document_id,int account, float amount,LocalDateTime date, String description)
+    throws RemoteException;
+    float getBalance(int document_id,int account) throws RemoteException;
+    void addDeposit(int to,int from,int account, int account2,float amount,LocalDateTime date, 
+    String description)throws RemoteException;
+    String confirmUser(int document_id, int number)throws RemoteException;
 }
 
 interface ATM_User extends Remote{
@@ -38,9 +44,11 @@ interface ATM_User extends Remote{
 interface ATM_Account extends Remote{
     void createAccount() throws RemoteException;
     ArrayList<ATM_Transaction> get5Transaction() throws RemoteException;
-    void addTransaction(int id, float amount, LocalDateTime date, String description) throws RemoteException;
+    void addTransaction( float amount, LocalDateTime date, String description) throws RemoteException;
     int getId()throws RemoteException;
     float getBalance()throws RemoteException;
+    void addBalance(float  balance) throws RemoteException;
+    void restBalance(float  balance)throws RemoteException;
     //void consultAccount() throws RemoteException;
     //void depositAccount() throws RemoteException;
     //void withdrawalAccount() throws RemoteException;

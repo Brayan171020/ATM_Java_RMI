@@ -2,6 +2,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ public class Client {
         Registry registry = LocateRegistry.getRegistry( PUERTO);
         ATM_Bank interfaz = (ATM_Bank) registry.lookup("Bank"); //Buscar en el registro...
         Scanner sc = new Scanner(System.in);
-        int eleccion,eleccion2,eleccion3;
+        int eleccion,eleccion2,eleccion3, eleccion4;
 		String name = "",username= "", password= "";
         //float numero1, numero2, resultado = 0;
 		int document_id;
@@ -66,24 +67,12 @@ public class Client {
 								if(eleccion2 != -1){
                 					switch (eleccion2) {
 										case 0:
-											ArrayList<ATM_Account> accounts;											
-											accounts=interfaz.getUser(document_id).getAccounts();
-											int cont = 0;
-											System.out.println("Cuentas del usuario "+interfaz.getUser(document_id).getUserName()+":\n");
-											System.out.println("\n[-1] => Salir\n");
-											for (ATM_Account account : accounts){
-												System.out.println("["+cont+"] => "+account.getId() + "\n");
-												cont = cont+1;
-											}
-											cont = 0;
-											System.out.println("\n\nElige:");
-											//ArrayList<Transaction> tran = accounts.get5Transaction();
+											ArrayList<ATM_Account> accounts = showAccounts(interfaz,document_id,false);
 											eleccion3 = electionOp(sc);
 											if(eleccion3 != -1){
 												switch (eleccion3) {
 													case 0:
 														showAccount(accounts.get(0));
-														System.out.println("putaaaaaa\n");
 														break;
 													case 1:
 														showAccount(accounts.get(1));
@@ -93,9 +82,59 @@ public class Client {
 														break;
 												}
 											}
+											//accounts=null;
 											break;
 										case 1:
-											System.out.println("No esta implementado perdon profe\n");
+											ArrayList<ATM_Account> accounts1 = showAccounts(interfaz,document_id, true);
+											
+											eleccion3 = electionOp(sc);
+											if(eleccion3 != -1){
+												switch (eleccion3) {
+													case 0:
+														addTransaction(interfaz,document_id,sc,0);
+														break;
+													case 1:
+														addTransaction(interfaz,document_id,sc,1);
+														break;
+													case 2:
+														addTransaction(interfaz,document_id,sc,2);
+														break;
+													case 3:
+															int document_id2,id_account;
+															System.out.println("Ingrese los datos del otro usuario: ");
+															System.out.println("Numero de Documento de identidad: ");
+															try{
+																document_id2 = Integer.parseInt(sc.nextLine());
+															}catch(NumberFormatException e){
+																document_id2 = 0;
+															};
+															System.out.println("Numero de Cuenta: ");
+															try{
+																id_account = Integer.parseInt(sc.nextLine());
+															}catch(NumberFormatException e){
+																id_account = 0;
+															};
+															if (interfaz.confirmUser(document_id2, id_account)!=null){
+																System.out.println("Se realizara un deposito a "+ interfaz.confirmUser(document_id2, id_account)+"\n");
+																System.out.println("[0] Confirmar\n");
+																System.out.println("[1] Denegar\n\n");
+																System.out.println("Elije:");
+																eleccion4 = Integer.parseInt(sc.nextLine());
+																if (eleccion4==0){
+																	Float amount2;
+																	String description;
+																	System.out.println("Ingrese la cantidad a depositar:\n");
+																	amount2 = Float.parseFloat(sc.nextLine());
+																	System.out.println("Ingrese la Descripcion de la operacion\n");
+																	description =sc.nextLine();
+																	interfaz.addTransaction(document_id2, id_account, amount2, LocalDateTime.now(), description);
+																}else {
+																	break;
+																}
+															}
+														break;
+												}
+											}
 											break;
 
 									}
@@ -113,6 +152,38 @@ public class Client {
         sc.close();
     }
 
+public static void addTransaction(ATM_Bank interfaz,int document_id,Scanner sc, int id_number)throws RemoteException{
+	Float amount2;
+	String description;
+	System.out.println("Ingrese la cantidad a depositar:\n");
+	amount2 = Float.parseFloat(sc.nextLine());
+	System.out.println("Ingrese la Descripcion de la operacion\n");
+	description =sc.nextLine();
+	interfaz.addTransaction(document_id, id_number, amount2, LocalDateTime.now(), description);
+	System.out.println("\n\nLa operacion ha sido realizada exitosamente\n");
+	System.out.println("El nuevo balance es:"+interfaz.getBalance(document_id, id_number));
+}
+
+public static ArrayList<ATM_Account> showAccounts(ATM_Bank interfaz,int document_id, boolean i)throws RemoteException{
+	ArrayList<ATM_Account> accounts;											
+	accounts=interfaz.getUser(document_id).getAccounts();
+	int cont = 0;
+	System.out.println("Cuentas del usuario "+interfaz.getUser(document_id).getUserName()+":\n");
+	System.out.println("\n[-1] => Salir\n");
+	for (ATM_Account account : accounts){
+		System.out.println("[3] => "+account.getId() + "\n");
+		cont = cont+1;
+	}
+	
+	if (i){
+		System.out.println("["+cont+"] => Cuenta de 3ros\n");
+	}
+	cont = 0;
+	System.out.println("\n\nElige:");
+	return accounts;
+
+}
+
 public static void showAccount(ATM_Account account) throws RemoteException{
 	System.out.println("\n\n\n Cuenta:");
 	System.out.println("\nId :"+account.getId()+"\n");
@@ -122,7 +193,7 @@ public static void showAccount(ATM_Account account) throws RemoteException{
 	trans = account.get5Transaction();
 	for (ATM_Transaction tran : trans){
 		System.out.println("id: "+tran.getId()+" Monto:"+tran.geAmount()+" Fecha:"+tran.getDate());
-		System.out.println("id: "+tran.getDescription()+"\n\n");
+		System.out.println("Descripcion: "+tran.getDescription()+"\n\n");
 	}
 
 }
