@@ -14,13 +14,13 @@ public class Client {
         Registry registry = LocateRegistry.getRegistry( PUERTO);
         ATM_Bank interfaz = (ATM_Bank) registry.lookup("Bank"); //Buscar en el registro...
         Scanner sc = new Scanner(System.in);
-        int eleccion,eleccion2,eleccion3, eleccion4;
+        int eleccion,eleccion2,eleccion3, eleccion4,eleccion5;
 		String name = "",username= "", password= "";
         //float numero1, numero2, resultado = 0;
 		int document_id;
 		//ATM_User user;
         String menu = "\n------------------\n\n[-1] => Salir\n[0] => Apertura de Cuenta\n[1] => Realizar Transaccion\n\nElige: ";
-		String menuTrasanccion = "\n------------------\n\n[-1] => Salir\n[0] => Consulta de Cuenta\n[1] => Deposito de cuenta\n\nElige: ";
+		String menuTrasanccion = "\n------------------\n\n[-1] => Salir\n[0] => Consulta de Cuenta\n[1] => Deposito de cuenta\n[2] => Retiro de cuenta\n\nElige: ";
         do {
 			System.out.println("\n\nBienvenido ATM");
             System.out.println(menu);
@@ -136,7 +136,23 @@ public class Client {
 												}
 											}
 											break;
-
+										case 2:
+											ArrayList<ATM_Account> accounts2 = showAccounts(interfaz,document_id, false);
+											eleccion5 = electionOp(sc);
+											if(eleccion5 != -1){
+												switch (eleccion5) {
+													case 0:
+														restTransaction(interfaz,document_id,sc,0);
+														break;
+													case 1:
+														restTransaction(interfaz,document_id,sc,1);
+														break;
+													case 2:
+														restTransaction(interfaz,document_id,sc,2);
+														break;
+												}												
+											}
+											break;
 									}
 									//break;
 								}
@@ -151,6 +167,18 @@ public class Client {
         } while (eleccion != -1);
         sc.close();
     }
+
+public static void restTransaction(ATM_Bank interfaz,int document_id,Scanner sc, int id_number)throws RemoteException{
+	Float amount2;
+	String description;
+	System.out.println("Ingrese la cantidad a retirar:\n");
+	amount2 = Float.parseFloat(sc.nextLine());
+	System.out.println("Ingrese la Descripcion de la operacion\n");
+	description =sc.nextLine();
+	interfaz.addTransaction(document_id, id_number, -amount2, LocalDateTime.now(), description);
+	System.out.println("\n\nLa operacion ha sido realizada exitosamente\n");
+	System.out.println("El nuevo balance es:"+interfaz.getBalance(document_id, id_number));
+}
 
 public static void addTransaction(ATM_Bank interfaz,int document_id,Scanner sc, int id_number)throws RemoteException{
 	Float amount2;
@@ -171,12 +199,12 @@ public static ArrayList<ATM_Account> showAccounts(ATM_Bank interfaz,int document
 	System.out.println("Cuentas del usuario "+interfaz.getUser(document_id).getUserName()+":\n");
 	System.out.println("\n[-1] => Salir\n");
 	for (ATM_Account account : accounts){
-		System.out.println("[3] => "+account.getId() + "\n");
+		System.out.println("["+cont+"] => "+account.getId() + " -> Balance: "+account.getBalance()+"\n");
 		cont = cont+1;
 	}
 	
 	if (i){
-		System.out.println("["+cont+"] => Cuenta de 3ros\n");
+		System.out.println("[3] => Cuenta de 3ros\n");
 	}
 	cont = 0;
 	System.out.println("\n\nElige:");
