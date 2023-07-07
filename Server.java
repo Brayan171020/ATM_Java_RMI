@@ -53,6 +53,10 @@ class Bank  implements ATM_Bank {
     public void createAccount(int document_id, int numeroDeCuenta,float amount)throws RemoteException{
         this.getUser(document_id).addAccount(numeroDeCuenta, amount);
     }
+
+    public  ArrayList<ATM_Account> getAccount(int document_id) throws RemoteException{
+        return this.getUser(document_id).getAccounts();
+    }
 }
 
 class User implements ATM_User, Serializable {
@@ -60,7 +64,7 @@ class User implements ATM_User, Serializable {
     String name;
     String username;
     String password;
-    ArrayList<Account> accounts=new ArrayList<Account>(3);
+    ArrayList<ATM_Account> accounts= new ArrayList<ATM_Account>(3);
 
     public void createUser (int document_id, String name, String username, String password)
     throws RemoteException{
@@ -97,9 +101,21 @@ class User implements ATM_User, Serializable {
     public int getDocument_id(){
         return this.document_id;
     }
+    public ArrayList<ATM_Account> getAccounts() throws RemoteException{
+        return this.accounts;
+    }
+
+    public ATM_Account getAccount(int number) throws RemoteException{
+        for (ATM_Account account : this.accounts){
+            if (account.getId()==number){
+                return account;
+            }
+        }
+        return null;
+    }
 }
 
-class Account implements ATM_Account{
+class Account implements ATM_Account, Serializable{
     int number;
     float current_balance;
     ArrayList<Transaction> transactions = new ArrayList<Transaction>();
@@ -113,9 +129,33 @@ class Account implements ATM_Account{
     public void createAccount(){
 
     }
+    public int getId(){
+        return this.number;
+    }
+    public float getBalance(){
+        return this.current_balance;
+    }
+
+    public void addTransaction(int id, float amount, LocalDateTime date, String description){
+        Transaction tran = new Transaction(id,amount,date,description);
+        this.transactions.add(tran);
+
+    }
+
+    public ArrayList<ATM_Transaction> get5Transaction()throws RemoteException{
+        int numTransaction = transactions.size();
+        int primerIndiceAMostrar = Math.max(0, numTransaction - 5);
+        ArrayList<ATM_Transaction> ultimasTransacciones = new ArrayList<>();
+        for (int i = primerIndiceAMostrar; i < numTransaction; i++) {
+            ultimasTransacciones.add(transactions.get(i));
+        }
+
+        return ultimasTransacciones;
+    }
+
 }
 
-class Transaction {
+class Transaction implements ATM_Transaction,Serializable{
     int id;
     float amount;
     LocalDateTime date;
@@ -127,6 +167,20 @@ class Transaction {
         this.description = description;
         this.date = date;
     }
+
+    public int getId(){
+        return this.id;
+    }
+    public float geAmount(){
+        return this.amount;
+    }
+    public LocalDateTime getDate(){
+        return this.date;
+    }
+    public String getDescription(){
+        return this.description;
+    }
+
 }
 public class Server {
 	private static final int PUERTO = 1100; //Si cambias aquí el puerto, recuerda cambiarlo en el cliente

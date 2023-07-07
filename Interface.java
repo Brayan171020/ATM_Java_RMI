@@ -1,7 +1,8 @@
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-
+import java.util.*;
+import java.time.LocalDateTime;
 /*
 	Declarar firma de métodos que serán sobrescritos
 */
@@ -30,13 +31,26 @@ interface ATM_User extends Remote{
     String getPassword() throws RemoteException;
     void addAccount(int number, float current_balance)throws RemoteException;
     boolean isMaxAccounts()throws RemoteException;
+    ArrayList<ATM_Account> getAccounts() throws RemoteException;
+    ATM_Account getAccount(int number) throws RemoteException;
 }
 
 interface ATM_Account extends Remote{
     void createAccount() throws RemoteException;
+    ArrayList<ATM_Transaction> get5Transaction() throws RemoteException;
+    void addTransaction(int id, float amount, LocalDateTime date, String description) throws RemoteException;
+    int getId()throws RemoteException;
+    float getBalance()throws RemoteException;
     //void consultAccount() throws RemoteException;
     //void depositAccount() throws RemoteException;
     //void withdrawalAccount() throws RemoteException;
     //void transferenceAccount() throws RemoteException;
     
+}
+
+interface ATM_Transaction extends Remote{
+    int getId()throws RemoteException;
+    float geAmount()throws RemoteException;
+    LocalDateTime getDate()throws RemoteException;
+    String getDescription()throws RemoteException;
 }

@@ -2,6 +2,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 public class Client {
@@ -12,12 +13,13 @@ public class Client {
         Registry registry = LocateRegistry.getRegistry( PUERTO);
         ATM_Bank interfaz = (ATM_Bank) registry.lookup("Bank"); //Buscar en el registro...
         Scanner sc = new Scanner(System.in);
-        int eleccion,eleccion2;
+        int eleccion,eleccion2,eleccion3;
 		String name = "",username= "", password= "";
         //float numero1, numero2, resultado = 0;
 		int document_id;
 		//ATM_User user;
         String menu = "\n------------------\n\n[-1] => Salir\n[0] => Apertura de Cuenta\n[1] => Realizar Transaccion\n\nElige: ";
+		String menuTrasanccion = "\n------------------\n\n[-1] => Salir\n[0] => Consulta de Cuenta\n[1] => Deposito de cuenta\n\nElige: ";
         do {
 			System.out.println("\n\nBienvenido ATM");
             System.out.println(menu);
@@ -58,15 +60,39 @@ public class Client {
 							if(!authUser(interfaz,sc,document_id)){
 								System.out.println("Usuario o contrase;a invalidos\n");
 								break;
-							}else{
-
-								String menuTrasanccion = "\n------------------\n\n[-1] => Salir\n[0] => Consulta de Cuenta\n[1] => Deposito de cuenta\n\nElige: ";
+							}else{								
 								System.out.println(menuTrasanccion);
 								eleccion2 = electionOp(sc);
 								if(eleccion2 != -1){
                 					switch (eleccion2) {
 										case 0:
-											System.out.println("No esta implementado perdon profe\n");
+											ArrayList<ATM_Account> accounts;											
+											accounts=interfaz.getUser(document_id).getAccounts();
+											int cont = 0;
+											System.out.println("Cuentas del usuario "+interfaz.getUser(document_id).getUserName()+":\n");
+											System.out.println("\n[-1] => Salir\n");
+											for (ATM_Account account : accounts){
+												System.out.println("["+cont+"] => "+account.getId() + "\n");
+												cont = cont+1;
+											}
+											cont = 0;
+											System.out.println("\n\nElige:");
+											//ArrayList<Transaction> tran = accounts.get5Transaction();
+											eleccion3 = electionOp(sc);
+											if(eleccion3 != -1){
+												switch (eleccion3) {
+													case 0:
+														showAccount(accounts.get(0));
+														System.out.println("putaaaaaa\n");
+														break;
+													case 1:
+														showAccount(accounts.get(1));
+														break;
+													case 2:
+														showAccount(accounts.get(2));
+														break;
+												}
+											}
 											break;
 										case 1:
 											System.out.println("No esta implementado perdon profe\n");
@@ -86,6 +112,20 @@ public class Client {
         } while (eleccion != -1);
         sc.close();
     }
+
+public static void showAccount(ATM_Account account) throws RemoteException{
+	System.out.println("\n\n\n Cuenta:");
+	System.out.println("\nId :"+account.getId()+"\n");
+	System.out.println("Balance de la cuenta: "+account.getBalance()+"\n");
+	System.out.println("Ultimos 5 movimentos: \n");
+	ArrayList<ATM_Transaction> trans;
+	trans = account.get5Transaction();
+	for (ATM_Transaction tran : trans){
+		System.out.println("id: "+tran.getId()+" Monto:"+tran.geAmount()+" Fecha:"+tran.getDate());
+		System.out.println("id: "+tran.getDescription()+"\n\n");
+	}
+
+}
 
 public static int electionOp(Scanner sc){
 	int eleccion;
